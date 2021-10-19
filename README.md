@@ -6,7 +6,7 @@ Good luck! 🔥
 
 # Weglot JS Assessment
 
-## Technical skills (~1h)
+## Technical skills
 
 Vous devez souvent organiser des réunions de 60 minutes avec vos collègues,
 seulement tout le monde a un emploi du temps très chargé. Google agenda vous
