@@ -2,14 +2,19 @@
 const fs = require('fs');
 //le module moment nous permet de manipuler les moment()
 const moment=require('moment');
+const path=require('path');
+
 var busyDay=new Array();
 var busyDays=new Map();
 var result;
 
+//On ajoute ça pour pouvoir utiliser : run-func indexV2.js main inputX.txt via cmd
+module.exports={main}
+
 //Cette Fonction récupére le contenu des fichiers contenant les plages horaire occupés 
 function contenuFichier(nom){
-	var text = fs.readFileSync('../data/'+nom,'utf8')
-	var textTable=text.split('\r\n')
+	var text = fs.readFileSync(path.resolve(__dirname,'../data/'+nom),'utf8');
+	var textTable=text.split('\r\n');
 	return textTable;
 }
 
@@ -35,7 +40,7 @@ function triParJour(busy){
 //Cette fonction prend en parametre une MAP des jours et des plages horaires occupées correspondantes
 //ainsi que le jour que l'on souhaite observer 
 //elle va ensuite retourner la premiere plage horaire qui convient à tout le monde sur le jour concerne 
-function heureDispo(busyDays,day){
+function heureDispoJour(busyDays,day){
 	var possible=false;
 	//on crée deux boucles : une pour les heures et une pour les minutes 
 	for (i=8;i<17;i++){
@@ -59,7 +64,14 @@ function heureDispo(busyDays,day){
 				//Ici on test si les deux heures de la plages horaires sont comprise dans chacuns des créneaux du jour
 				if(!(reuInitHr.isBetween(busyDays.get(day)[k][0],busyDays.get(day)[k][1]))){
 					if(!(reuFinHr.isBetween(busyDays.get(day)[k][0],busyDays.get(day)[k][1]))){
-						possible=true;
+						//On vérifie que les heures ne correspondent pas aux bornes
+						if(reuInitHr.isSame(busyDays.get(day)[k][0]) || reuFinHr.isSame(busyDays.get(day)[k][0]) || reuFinHr.isSame(busyDays.get(day)[k][1]) || reuInitHr.isSame(busyDays.get(day)[k][1])){
+							possible=false;
+							break;
+						}
+						else{
+							possible=true;
+						}
 					}
 					else{
 						possible=false;
@@ -85,19 +97,17 @@ function heureDispo(busyDays,day){
 	return "pas de créneaux disponibles";
 }
 
-//Pour finir on crée une boucle sur les jours qui va appeler les 3 fonctions crées ci dessus 
-for(let y=1;y<6;y++){
+//Pour finir on crée une fonction qui boucle sur les jours et qui appellera les 3 fonctions crées ci dessus 
+function main(fichier){
+	for(let y=1;y<6;y++){
 	//console.log("jour : "+y.toString());
-	var reu=heureDispo(triParJour(contenuFichier("input1.txt")),y);
+	// Si on veut tester d'autres input il faut changer "input1.txt"
+	var reu=heureDispoJour(triParJour(contenuFichier(fichier)),y);
 	if(reu!="pas de créneaux disponibles"){
-		console.log("result : "+y.toString()+" "+reu[0].format('HH:mm')+'-'+reu[1].format('HH:mm'));
+		console.log(y.toString()+" "+reu[0].format('HH:mm')+'-'+reu[1].format('HH:mm'))
+		return y.toString()+" "+reu[0].format('HH:mm')+'-'+reu[1].format('HH:mm');
 		break;
 	}
 }
-
-
-
-
-
-
+}
 
